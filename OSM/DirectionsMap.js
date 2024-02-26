@@ -1,51 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 
-const DirectionsMap = ({ startPoint, endPoint, apiKey }) => {
-  const [route, setRoute] = useState(null);
-
-  useEffect(() => {
-    const fetchRoute = async () => {
-      try {
-        const response = await fetch(
-          `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}&start=${startPoint}&end=${endPoint}`
-        );
-        const data = await response.json();
-        console.log('API Response:', data); // Log the response data
-        setRoute(data);
-      } catch (error) {
-        console.error('Error fetching route:', error);
-      }
-    };
-
-    fetchRoute();
-  }, [startPoint, endPoint, apiKey]);
-
+const DirectionsMap = ({ start, end }) => {
   const htmlContent = `
     <!DOCTYPE html>
     <html>
 
     <head>
-      <title>OpenStreetMap</title>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Geolocation</title>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
       <style>
-        #map { height: 100vh; }
+        body {
+          margin: 0;
+          padding: 0;
+        }
       </style>
+
     </head>
 
     <body>
-      <div id="map"></div>
+      <!-- Map container -->
+      <div id="map" style="width:100%; height: 100vh"></div>
 
+      <!-- Include Leaflet and Leaflet Routing Machine scripts -->
       <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+      <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
       <script>
-        var map = L.map('map').setView([${startPoint}], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // Starting and ending coordinates
+        var startCoords = ${JSON.stringify(start)};
+        var endCoords = ${JSON.stringify(end)};
+
+        // Calculate the midpoint between start and end coordinates
+        var midLatitude = (startCoords[0] + endCoords[0]) / 2;
+        var midLongitude = (startCoords[1] + endCoords[1]) / 2;
+
+        // Create a Leaflet map centered at the midpoint with zoom level 11
+        var map = L.map('map').setView([midLatitude, midLongitude], 11);
+
+        // Attribution for the tile layer
+        mapLink = "<a href='http://openstreetmap.org'>OpenStreetMap</a>";
+
+        // Add a tile layer to the map using OpenStreetMap tiles
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution: 'Leaflet &copy; ' + mapLink + ', contribution',
+          maxZoom: 10
         }).addTo(map);
+
+        // Create markers for the starting and ending points and add them to the map
+        var startMarker = L.marker(startCoords).addTo(map);
+        var endMarker = L.marker(endCoords).addTo(map);
+
+        // Create a Leaflet Routing Machine control with waypoints set to the starting and ending coordinates
+        L.Routing.control({
+          waypoints: [
+            L.latLng(startCoords[0], startCoords[1]),
+            L.latLng(endCoords[0], endCoords[1])
+          ]
+        }).addTo(map);
+
       </script>
+
     </body>
 
     </html>

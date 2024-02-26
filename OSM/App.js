@@ -3,17 +3,13 @@ import { View, StyleSheet } from 'react-native';
 import DirectionsMap from './DirectionsMap';
 
 const App = () => {
-  const startPoint = "28.7041,77.1025"; // 
-  const endPoint = "28.6139,77.2090"; // 
-  const apiKey = "OPENROUTE SERVICE API"; // Replace with your API key
+  // Define the start and end coordinates
+  const start = [28.7041, 77.1025]; // Delhi
+  const end = [19.076, 72.8777]; // Mumbai
 
   return (
     <View style={styles.container}>
-      <DirectionsMap
-        startPoint={startPoint}
-        endPoint={endPoint}
-        apiKey={apiKey}
-      />
+      <DirectionsMap start={start} end={end} />
     </View>
   );
 };
