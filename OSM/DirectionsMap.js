@@ -47,7 +47,7 @@ const DirectionsMap = ({ start, end }) => {
         // Add a tile layer to the map using OpenStreetMap tiles
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
           attribution: 'Leaflet &copy; ' + mapLink + ', contribution',
-          maxZoom: 10
+          maxZoom: 18
         }).addTo(map);
 
         // Create markers for the starting and ending points and add them to the map
